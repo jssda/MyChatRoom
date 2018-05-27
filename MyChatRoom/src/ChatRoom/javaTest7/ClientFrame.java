@@ -13,30 +13,85 @@ public class ClientFrame extends JFrame{
 	 */
 	private static final long serialVersionUID = 1L;
 	Toolkit tool = Toolkit.getDefaultToolkit();
-	JFrame jClint = null;
-	JPanel jClintPan = null;
+	Container conClit = null; 	//窗口容器
+	
+	JPanel jpBack = null; 	//聊天记录面板
+	JPanel jpOnLine = null; 	//在线人员面板
+	JPanel jpTalk = null; 	//聊天输入框与发送人员面板
+	
+	JTextArea txtBack = null; 	//聊天记录显示区域
+	JScrollPane jsBack = null; 	//聊天记录滚动条面板
+	
+	JTextArea txtAction = null; 	//聊天输入区域
+	JButton jbSend = null; 	//发送按钮
+	JLabel jlTo = null;
+	JComboBox<String> jcbPersons = null;
+	
+	public ClientFrame() {
+		super("Happy chatting 0.0");
+		conClit = this.getContentPane();
+		init();
+		
+		//通过toolkit工具包, 取得屏幕中央位置, 将窗口显示在中央
+		int x = (int) ((tool.getScreenSize().getWidth() - 800) / 2);
+		int y = (int) ((tool.getScreenSize().getHeight() - 800) / 2);
+		
+		//窗口位置, 令其显示
+		this.setSize(800, 800);
+		this.setLocation(x, y);
+		this.setVisible(true);
+	}
 	
 	public void init() {
 		
-		//初始化窗口
-		jClint = new JFrame("ChatHappy");
-		jClint.setLayout(new GridBagLayout());
+		//初始化窗口布局
+		BorderLayout layout = new BorderLayout();
+		conClit.setLayout(layout);
 		
-		//初始化窗口面板
-		jClintPan = new JPanel(new GridBagLayout());
-		jClintPan.setSize(600, 600);
+		//聊天记录面板
+		jpBack = new JPanel(new BorderLayout());
+		jpBack.setBackground(Color.BLUE);
 		
-		jClint.add(jClintPan);
-		jClint.setSize(600, 600);
+		//聊天记录滚动条
+		jsBack = new JScrollPane();
+		jsBack.add(jpBack);
 		
-		//通过toolkit工具包, 取得屏幕中央位置, 将窗口显示在中央
-		int x = (int) ((tool.getScreenSize().getWidth() - 600) / 2);
-		int y = (int) ((tool.getScreenSize().getHeight() - 600) / 2);
+		//在线人员面板
+		jpOnLine = new JPanel(new BorderLayout());
+		jpOnLine.setBackground(Color.RED);
 		
-		jClint.setLocation(x, y);
-		jClint.setVisible(true);
+		//初始化聊天输入框与发送人员面板
+		jpTalk = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12));
+		jpTalk.setBackground(Color.yellow);
 		
-		jClint.addWindowListener(new WindowAdapter() {
+		//初始化聊天记录区域, 并加入聊天记录面板
+		txtBack = new JTextArea(40, 30);
+		jpBack.add(txtBack, BorderLayout.CENTER);
+		
+		//初始化聊天发送窗口, 并加入输入框面板
+		txtAction = new JTextArea(3, 40);
+		txtAction.setText("我是刘浩");
+		jpTalk.add(txtAction);
+		
+		//初始化发送按钮, 并加入在线人员面板
+		jbSend = new JButton("send"); 	
+		jbSend.setSize(50, 50);
+		jpTalk.add(jbSend); 	//加入发送到窗口人员面板	
+		
+		jlTo = new JLabel("TO");
+		jpTalk.add(jlTo);
+		
+		jcbPersons = new JComboBox<String>();
+		jcbPersons.addItem("ALL");
+		jpTalk.add(jcbPersons);
+		
+		//三个面板加入到窗体中
+		conClit.add(jsBack, BorderLayout.CENTER);
+		conClit.add(jpOnLine, BorderLayout.EAST);
+		conClit.add(jpTalk, BorderLayout.SOUTH);
+		
+		//窗口监听
+		this.addWindowListener(new WindowAdapter() {
 
 			@Override
 			//窗口关闭监听器
@@ -50,6 +105,6 @@ public class ClientFrame extends JFrame{
 	}
 	
 	public static void main(String[] args) {
-		new ClientFrame().init();;
+		new ClientFrame();
 	}
 }
