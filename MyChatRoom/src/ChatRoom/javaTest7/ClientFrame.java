@@ -5,6 +5,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.net.*;
+import java.io.*;
 
 import javax.swing.*;
 
@@ -29,6 +32,7 @@ public class ClientFrame extends JFrame{
 	JLabel jlTo = null;
 	JComboBox<String> jcbPersons = null;
 	
+	Socket s = null; 	//客户端套接字
 	
 	public ClientFrame() {
 		super("Happy chatting 0.0");
@@ -59,6 +63,7 @@ public class ClientFrame extends JFrame{
 		jbSend.addActionListener(new jbSendListener());
 		
 		this.setVisible(true);
+		connected();
 	}
 	
 	
@@ -116,12 +121,33 @@ public class ClientFrame extends JFrame{
 //		pack();
 	}
 	
+	public void connected() {
+		try {
+			s = new Socket("127.0.0.1", 8888);
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+System.out.println("connected!");
+	}
 	
 	private class jbSendListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == jbSend) {
-				String s = txtAction.getText().trim();
-				txtBack.setText(s);			}
+				String str = txtAction.getText().trim();
+				txtBack.setText(str);	
+				txtAction.setText("");
+				
+				try {
+					BufferedOutputStream buffOut = new BufferedOutputStream(s.getOutputStream());
+					buffOut.write(str.getBytes());
+					buffOut.close();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
 		}
 	}
 	
