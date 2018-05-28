@@ -1,6 +1,8 @@
 package ChatRoom.javaTest7;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -13,70 +15,92 @@ public class ClientFrame extends JFrame{
 	 */
 	private static final long serialVersionUID = 1L;
 	Toolkit tool = Toolkit.getDefaultToolkit();
-	Container conClit = null; 	//´°¿ÚÈİÆ÷
+	Container conClit = null; 	//çª—å£å®¹å™¨
 	
-	JPanel jpBack = null; 	//ÁÄÌì¼ÇÂ¼Ãæ°å
-	JPanel jpOnLine = null; 	//ÔÚÏßÈËÔ±Ãæ°å
-	JPanel jpTalk = null; 	//ÁÄÌìÊäÈë¿òÓë·¢ËÍÈËÔ±Ãæ°å
+	JPanel jpBack = null; 	//èŠå¤©è®°å½•é¢æ¿
+	JPanel jpOnLine = null; 	//åœ¨çº¿äººå‘˜é¢æ¿
+	JPanel jpTalk = null; 	//èŠå¤©è¾“å…¥æ¡†ä¸å‘é€äººå‘˜é¢æ¿
 	
-	JTextArea txtBack = null; 	//ÁÄÌì¼ÇÂ¼ÏÔÊ¾ÇøÓò
-	JScrollPane jsBack = null; 	//ÁÄÌì¼ÇÂ¼¹ö¶¯ÌõÃæ°å
+	JTextArea txtBack = null; 	//èŠå¤©è®°å½•æ˜¾ç¤ºåŒºåŸŸ
+	JScrollPane jsBack = null; 	//èŠå¤©è®°å½•æ»šåŠ¨æ¡é¢æ¿
 	
-	JTextArea txtAction = null; 	//ÁÄÌìÊäÈëÇøÓò
-	JButton jbSend = null; 	//·¢ËÍ°´Å¥
+	JTextArea txtAction = null; 	//èŠå¤©è¾“å…¥åŒºåŸŸ
+	JButton jbSend = null; 	//å‘é€æŒ‰é’®
 	JLabel jlTo = null;
 	JComboBox<String> jcbPersons = null;
+	
 	
 	public ClientFrame() {
 		super("Happy chatting 0.0");
 		conClit = this.getContentPane();
 		init();
 		
-		//Í¨¹ıtoolkit¹¤¾ß°ü, È¡µÃÆÁÄ»ÖĞÑëÎ»ÖÃ, ½«´°¿ÚÏÔÊ¾ÔÚÖĞÑë
+		//é€šè¿‡toolkitå·¥å…·åŒ…, å–å¾—å±å¹•ä¸­å¤®ä½ç½®, å°†çª—å£æ˜¾ç¤ºåœ¨ä¸­å¤®
 		int x = (int) ((tool.getScreenSize().getWidth() - 800) / 2);
 		int y = (int) ((tool.getScreenSize().getHeight() - 800) / 2);
 		
-		//´°¿ÚÎ»ÖÃ, ÁîÆäÏÔÊ¾
+		//çª—å£ä½ç½®, ä»¤å…¶æ˜¾ç¤º
 		this.setSize(800, 800);
 		this.setLocation(x, y);
+		
+		//çª—å£ç›‘å¬
+		this.addWindowListener(new WindowAdapter() {
+
+			@Override
+			//çª—å£å…³é—­ç›‘å¬å™¨
+			public void windowClosing(WindowEvent e) {
+				// TODO Auto-generated method stub
+				super.windowClosing(e);
+				System.exit(1);
+			}
+			
+		});
+		
+		jbSend.addActionListener(new jbSendListener());
+		
 		this.setVisible(true);
 	}
 	
+	
 	public void init() {
 		
-		//³õÊ¼»¯´°¿Ú²¼¾Ö
+		//åˆå§‹åŒ–çª—å£å¸ƒå±€
 		BorderLayout layout = new BorderLayout();
 		conClit.setLayout(layout);
 		
-		//ÁÄÌì¼ÇÂ¼Ãæ°å
+		//èŠå¤©è®°å½•é¢æ¿
 		jpBack = new JPanel(new BorderLayout());
 		jpBack.setBackground(Color.BLUE);
 		
-		//ÁÄÌì¼ÇÂ¼¹ö¶¯Ìõ
-		jsBack = new JScrollPane();
-		jsBack.add(jpBack);
 		
-		//ÔÚÏßÈËÔ±Ãæ°å
+		//åœ¨çº¿äººå‘˜é¢æ¿
 		jpOnLine = new JPanel(new BorderLayout());
 		jpOnLine.setBackground(Color.RED);
 		
-		//³õÊ¼»¯ÁÄÌìÊäÈë¿òÓë·¢ËÍÈËÔ±Ãæ°å
+		//åˆå§‹åŒ–èŠå¤©è¾“å…¥æ¡†ä¸å‘é€äººå‘˜é¢æ¿
 		jpTalk = new JPanel(new FlowLayout(FlowLayout.CENTER, 12, 12));
 		jpTalk.setBackground(Color.yellow);
 		
-		//³õÊ¼»¯ÁÄÌì¼ÇÂ¼ÇøÓò, ²¢¼ÓÈëÁÄÌì¼ÇÂ¼Ãæ°å
+		//åˆå§‹åŒ–èŠå¤©è®°å½•åŒºåŸŸ, å¹¶åŠ å…¥èŠå¤©è®°å½•é¢æ¿
 		txtBack = new JTextArea(40, 30);
+		txtBack.setText("åˆ˜æµ©æ˜¯å‚»é€¼");
+		txtBack.setLineWrap(true);
 		jpBack.add(txtBack, BorderLayout.CENTER);
 		
-		//³õÊ¼»¯ÁÄÌì·¢ËÍ´°¿Ú, ²¢¼ÓÈëÊäÈë¿òÃæ°å
+		//èŠå¤©è®°å½•æ»šåŠ¨æ¡
+		jsBack = new JScrollPane(jpBack, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+									JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		
+		//åˆå§‹åŒ–èŠå¤©å‘é€çª—å£, å¹¶åŠ å…¥è¾“å…¥æ¡†é¢æ¿
 		txtAction = new JTextArea(3, 40);
-		txtAction.setText("ÎÒÊÇÁõºÆ");
+		txtAction.setText("æˆ‘æ˜¯åˆ˜æµ©");
+		txtAction.setLineWrap(true);
 		jpTalk.add(txtAction);
 		
-		//³õÊ¼»¯·¢ËÍ°´Å¥, ²¢¼ÓÈëÔÚÏßÈËÔ±Ãæ°å
+		//åˆå§‹åŒ–å‘é€æŒ‰é’®, å¹¶åŠ å…¥åœ¨çº¿äººå‘˜é¢æ¿
 		jbSend = new JButton("send"); 	
 		jbSend.setSize(50, 50);
-		jpTalk.add(jbSend); 	//¼ÓÈë·¢ËÍµ½´°¿ÚÈËÔ±Ãæ°å	
+		jpTalk.add(jbSend); 	//åŠ å…¥å‘é€åˆ°çª—å£äººå‘˜é¢æ¿	
 		
 		jlTo = new JLabel("TO");
 		jpTalk.add(jlTo);
@@ -85,24 +109,22 @@ public class ClientFrame extends JFrame{
 		jcbPersons.addItem("ALL");
 		jpTalk.add(jcbPersons);
 		
-		//Èı¸öÃæ°å¼ÓÈëµ½´°ÌåÖĞ
+		//ä¸‰ä¸ªé¢æ¿åŠ å…¥åˆ°çª—ä½“ä¸­
 		conClit.add(jsBack, BorderLayout.CENTER);
 		conClit.add(jpOnLine, BorderLayout.EAST);
 		conClit.add(jpTalk, BorderLayout.SOUTH);
-		
-		//´°¿Ú¼àÌı
-		this.addWindowListener(new WindowAdapter() {
-
-			@Override
-			//´°¿Ú¹Ø±Õ¼àÌıÆ÷
-			public void windowClosing(WindowEvent e) {
-				// TODO Auto-generated method stub
-				super.windowClosing(e);
-				System.exit(1);
-			}
-			
-		});
+//		pack();
 	}
+	
+	
+	private class jbSendListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if(e.getSource() == jbSend) {
+				String s = txtAction.getText().trim();
+				txtBack.setText(s);			}
+		}
+	}
+	
 	
 	public static void main(String[] args) {
 		new ClientFrame();
