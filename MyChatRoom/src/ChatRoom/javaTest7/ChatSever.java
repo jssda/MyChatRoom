@@ -2,12 +2,14 @@ package ChatRoom.javaTest7;
 
 import java.net.*;
 import java.io.*;
+import java.util.*;
 
 public class ChatSever {
 
 	ServerSocket ss = null; // 服务端套接字
 	boolean status = false; // 服务器初始化操作循环标志
-
+	List<Clint> clints = new ArrayList<Clint>(); 	//服务端集合
+	
 	public static void main(String[] args) {
 		new ChatSever().start();
 	}
@@ -34,7 +36,9 @@ public class ChatSever {
 		try {
 			while (status) {
 				Socket s = ss.accept(); // 客户端连接
-				new Thread(new Clint(s)).start();;
+				Clint c = new Clint(s);
+				clints.add(c);
+				new Thread(c).start();
 			}
 		} catch (Exception e) {
 				System.out.println("Clint disconnected!");
@@ -52,6 +56,7 @@ public class ChatSever {
 	private class Clint implements Runnable {
 		
 		private BufferedReader buffInt = null; // 取得客户端输入流
+		private PrintStream out = null; //客户端输出流
 		private Socket s = null; // 客户端套接字
 		private String str = null; // 接受客户端发来的消息
 		private boolean bConnected = false;
@@ -63,17 +68,30 @@ public class ChatSever {
 			try {
 				buffInt = new BufferedReader(new InputStreamReader( // 初始化客户端输入流
 						s.getInputStream()));
+				out = new PrintStream(s.getOutputStream()); 	//客户端输出流转化为打印流
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		
-		@Override
+
+		private void send(String str) {
+			out.println(str);
+		}
+		
+		
 		public void run() {
+			System.out.println("bConnected = " + bConnected);
 			while (bConnected) { // 连接成功操作循环
 				try {
 					str = buffInt.readLine();
+					System.out.println("server==" + str);
+					
 					if (str != null) {
+						//发送到每个客户端
+						for(int i = 0; i < clints.size(); i ++) {
+							clints.get(i).send(str);
+						}
 						System.out.println(str); //将客户端发送信息打印到客户端控制台
 					} else {
 						bConnected = false;

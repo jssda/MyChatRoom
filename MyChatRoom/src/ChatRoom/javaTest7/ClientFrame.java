@@ -28,6 +28,8 @@ public class ClientFrame extends JFrame{
 	JLabel jlTo = null;
 	JComboBox<String> jcbPersons = null;
 	PrintStream out = null;
+	BufferedReader buffRead = null;
+	boolean bConnected = false;
 	
 	public ClientFrame() {
 		super("Happy chatting 0.0");
@@ -99,39 +101,34 @@ public class ClientFrame extends JFrame{
 		
 		//窗口监听
 		this.addWindowListener(new WindowAdapter() {
-
-			@Override
 			//窗口关闭监听器
 			public void windowClosing(WindowEvent e) {
 				super.windowClosing(e);
 				disConnected();
 				System.exit(1);
 			}
-			
 		});
 		
-		jbSend.addActionListener(new jbSendListener());
 		
+		jbSend.addActionListener(new jbSendListener());
 		this.setVisible(true);
 		connected();
 	}
 	
 	
-	public void init() {
-		
-		
-	}
-	
 	public void connected() {
 		try {
 			s = new Socket("127.0.0.1", 8888);
+			bConnected = true;
 			out = new PrintStream(s.getOutputStream()); 	//得到客户端输出流
+			buffRead = new BufferedReader(new InputStreamReader( 	//得到客户端输入流
+					s.getInputStream()));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-System.out.println("connected!");
+		System.out.println("connected!");
 	}
 	
 	public void disConnected() {
@@ -145,6 +142,7 @@ System.out.println("connected!");
 	
 	
 	private class jbSendListener implements ActionListener {
+		
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == jbSend) {
 				String str = txtAction.getText().trim();
@@ -155,6 +153,37 @@ System.out.println("connected!");
 				out.flush();
 			}
 		}
+	}
+	
+	
+	private class Recive implements Runnable {
+		
+		private String str = null;
+
+		public void run() {
+
+			try {
+				
+				while(bConnected) {
+					if(str != null) {
+						str = buffRead.readLine();
+						System.out.println("str == " + str);
+						txtBack.append(str);
+					} else {
+						bConnected = false;
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					buffRead.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
 	}
 	
 	
