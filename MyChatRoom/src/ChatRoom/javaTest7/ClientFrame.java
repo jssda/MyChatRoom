@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
 import java.net.*;
 import java.io.*;
 
@@ -13,11 +12,10 @@ import javax.swing.*;
 
 public class ClientFrame extends JFrame{
 	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	Toolkit tool = Toolkit.getDefaultToolkit();
+	
+	JButton jbSend = null; 	//发送按钮
+	Socket s = null; 	//客户端套接字
 	Container conClit = null; 	//窗口容器
 	
 	JPanel jpBack = null; 	//聊天记录面板
@@ -25,49 +23,16 @@ public class ClientFrame extends JFrame{
 	JPanel jpTalk = null; 	//聊天输入框与发送人员面板
 	
 	JTextArea txtBack = null; 	//聊天记录显示区域
-	JScrollPane jsBack = null; 	//聊天记录滚动条面板
 	
 	JTextArea txtAction = null; 	//聊天输入区域
-	JButton jbSend = null; 	//发送按钮
 	JLabel jlTo = null;
 	JComboBox<String> jcbPersons = null;
-	
-	Socket s = null; 	//客户端套接字
+	PrintStream out = null;
 	
 	public ClientFrame() {
 		super("Happy chatting 0.0");
+		Toolkit tool = Toolkit.getDefaultToolkit();
 		conClit = this.getContentPane();
-		init();
-		
-		//通过toolkit工具包, 取得屏幕中央位置, 将窗口显示在中央
-		int x = (int) ((tool.getScreenSize().getWidth() - 800) / 2);
-		int y = (int) ((tool.getScreenSize().getHeight() - 800) / 2);
-		
-		//窗口位置, 令其显示
-		this.setSize(800, 800);
-		this.setLocation(x, y);
-		
-		//窗口监听
-		this.addWindowListener(new WindowAdapter() {
-
-			@Override
-			//窗口关闭监听器
-			public void windowClosing(WindowEvent e) {
-				// TODO Auto-generated method stub
-				super.windowClosing(e);
-				System.exit(1);
-			}
-			
-		});
-		
-		jbSend.addActionListener(new jbSendListener());
-		
-		this.setVisible(true);
-		connected();
-	}
-	
-	
-	public void init() {
 		
 		//初始化窗口布局
 		BorderLayout layout = new BorderLayout();
@@ -93,6 +58,7 @@ public class ClientFrame extends JFrame{
 		jpBack.add(txtBack, BorderLayout.CENTER);
 		
 		//聊天记录滚动条
+		JScrollPane jsBack = null; 	//聊天记录滚动条面板
 		jsBack = new JScrollPane(jpBack, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
 									JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
@@ -100,7 +66,9 @@ public class ClientFrame extends JFrame{
 		txtAction = new JTextArea(3, 40);
 		txtAction.setText("我是刘浩");
 		txtAction.setLineWrap(true);
-		jpTalk.add(txtAction);
+		JScrollPane jsTxtAction = new JScrollPane(txtAction, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		jpTalk.add(jsTxtAction);
 		
 		//初始化发送按钮, 并加入在线人员面板
 		jbSend = new JButton("send"); 	
@@ -118,12 +86,46 @@ public class ClientFrame extends JFrame{
 		conClit.add(jsBack, BorderLayout.CENTER);
 		conClit.add(jpOnLine, BorderLayout.EAST);
 		conClit.add(jpTalk, BorderLayout.SOUTH);
-//		pack();
+		pack();
+		
+		
+		//通过toolkit工具包, 取得屏幕中央位置, 将窗口显示在中央
+		int x = (int) ((tool.getScreenSize().getWidth() - 800) / 2);
+		int y = (int) ((tool.getScreenSize().getHeight() - 800) / 2);
+		
+		//窗口位置, 令其显示
+		this.setSize(800, 800);
+		this.setLocation(x, y);
+		
+		//窗口监听
+		this.addWindowListener(new WindowAdapter() {
+
+			@Override
+			//窗口关闭监听器
+			public void windowClosing(WindowEvent e) {
+				super.windowClosing(e);
+				disConnected();
+				System.exit(1);
+			}
+			
+		});
+		
+		jbSend.addActionListener(new jbSendListener());
+		
+		this.setVisible(true);
+		connected();
+	}
+	
+	
+	public void init() {
+		
+		
 	}
 	
 	public void connected() {
 		try {
 			s = new Socket("127.0.0.1", 8888);
+			out = new PrintStream(s.getOutputStream()); 	//得到客户端输出流
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -132,6 +134,16 @@ public class ClientFrame extends JFrame{
 System.out.println("connected!");
 	}
 	
+	public void disConnected() {
+		try {
+			out.close();
+			s.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	private class jbSendListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == jbSend) {
@@ -139,14 +151,8 @@ System.out.println("connected!");
 				txtBack.setText(str);	
 				txtAction.setText("");
 				
-				try {
-					BufferedOutputStream buffOut = new BufferedOutputStream(s.getOutputStream());
-					buffOut.write(str.getBytes());
-					buffOut.close();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+				out.println(str);
+				out.flush();
 			}
 		}
 	}
