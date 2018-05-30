@@ -113,6 +113,7 @@ public class ClientFrame extends JFrame{
 		jbSend.addActionListener(new jbSendListener());
 		this.setVisible(true);
 		connected();
+		new Thread(new Recive()).start();
 	}
 	
 	
@@ -123,12 +124,14 @@ public class ClientFrame extends JFrame{
 			out = new PrintStream(s.getOutputStream()); 	//得到客户端输出流
 			buffRead = new BufferedReader(new InputStreamReader( 	//得到客户端输入流
 					s.getInputStream()));
+			System.out.println("connected!");
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			System.out.println("服务器连接失败, 请检查服务器IP");
+			System.out.println("客户端退出");
+			System.exit(0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("connected!");
 	}
 	
 	public void disConnected() {
@@ -146,7 +149,7 @@ public class ClientFrame extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == jbSend) {
 				String str = txtAction.getText().trim();
-				txtBack.setText(str);	
+//				txtBack.setText(str);	
 				txtAction.setText("");
 				
 				out.println(str);
@@ -165,16 +168,16 @@ public class ClientFrame extends JFrame{
 			try {
 				
 				while(bConnected) {
+					str = buffRead.readLine();
 					if(str != null) {
-						str = buffRead.readLine();
 						System.out.println("str == " + str);
-						txtBack.append(str);
+						txtBack.append("\n" + str);
 					} else {
 						bConnected = false;
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.out.println("this client is closed");
 			} finally {
 				try {
 					buffRead.close();
@@ -183,7 +186,6 @@ public class ClientFrame extends JFrame{
 				}
 			}
 		}
-		
 	}
 	
 	

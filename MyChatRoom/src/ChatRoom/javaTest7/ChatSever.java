@@ -82,11 +82,9 @@ public class ChatSever {
 		
 		public void run() {
 			System.out.println("bConnected = " + bConnected);
-			while (bConnected) { // 连接成功操作循环
-				try {
+			try {
+				while (bConnected) { // 连接成功操作循环
 					str = buffInt.readLine();
-					System.out.println("server==" + str);
-					
 					if (str != null) {
 						//发送到每个客户端
 						for(int i = 0; i < clints.size(); i ++) {
@@ -96,23 +94,23 @@ public class ChatSever {
 					} else {
 						bConnected = false;
 					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					buffInt.close();
+					System.out.println("输入流关闭");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-			}
-			
-			try {
-				buffInt.close();
-				System.out.println("输入流关闭");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			try {
-				s.close();
-				System.out.println("客户端连接关闭");
-			} catch (IOException e) {
-				e.printStackTrace();
+				
+				try {
+					s.close();
+					System.out.println("客户端连接关闭");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
