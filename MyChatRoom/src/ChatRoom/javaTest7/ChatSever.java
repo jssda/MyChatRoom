@@ -76,7 +76,7 @@ public class ChatSever {
 		
 
 		private void send(String str) {
-			out.println(str);
+			out.println(str + "\n\n");
 		}
 		
 		

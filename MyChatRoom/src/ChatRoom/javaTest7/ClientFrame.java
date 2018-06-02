@@ -14,23 +14,24 @@ public class ClientFrame extends JFrame{
 	
 	private static final long serialVersionUID = 1L;
 	
-	JButton jbSend = null; 	//发送按钮
-	Socket s = null; 	//客户端套接字
-	Container conClit = null; 	//窗口容器
+	private JButton jbSend = null; 	//发送按钮
+	private Socket s = null; 	//客户端套接字
+	private Container conClit = null; 	//窗口容器
 	
-	JPanel jpBack = null; 	//聊天记录面板
-	JPanel jpOnLine = null; 	//在线人员面板
-	JPanel jpTalk = null; 	//聊天输入框与发送人员面板
+	private JPanel jpBack = null; 	//聊天记录面板
+	private JPanel jpOnLine = null; 	//在线人员面板
+	private JPanel jpTalk = null; 	//聊天输入框与发送人员面板
 	
-	JTextArea txtBack = null; 	//聊天记录显示区域
+	private JTextArea txtBack = null; 	//聊天记录显示区域
 	
-	JTextArea txtAction = null; 	//聊天输入区域
-	JLabel jlTo = null;
-	JComboBox<String> jcbPersons = null;
-	PrintStream out = null;
-	BufferedReader buffRead = null;
-	boolean bConnected = false;
+	private JTextArea txtAction = null; 	//聊天输入区域
+	private JLabel jlTo = null;
+	private JComboBox<String> jcbPersons = null;
+	private PrintStream out = null; 	//客户端输出流
+	private BufferedReader buffRead = null;	//客户端输入流
+	private boolean bConnected = false; 	//是否已经连接
 	
+	//初始化, 开始显示窗口
 	public ClientFrame() {
 		super("Happy chatting 0.0");
 		Toolkit tool = Toolkit.getDefaultToolkit();
@@ -55,8 +56,9 @@ public class ClientFrame extends JFrame{
 		
 		//初始化聊天记录区域, 并加入聊天记录面板
 		txtBack = new JTextArea(40, 30);
-		txtBack.setText("刘浩是傻逼");
+		txtBack.setText("");
 		txtBack.setLineWrap(true);
+		txtBack.setEditable(false);
 		jpBack.add(txtBack, BorderLayout.CENTER);
 		
 		//聊天记录滚动条
@@ -110,12 +112,15 @@ public class ClientFrame extends JFrame{
 		});
 		
 		
+		
 		jbSend.addActionListener(new jbSendListener());
 		this.setVisible(true);
+		
+		new LoginDialogBox(this);
+		
 		connected();
 		new Thread(new Recive()).start();
 	}
-	
 	
 	public void connected() {
 		try {
@@ -128,21 +133,28 @@ public class ClientFrame extends JFrame{
 		} catch (UnknownHostException e) {
 			System.out.println("服务器连接失败, 请检查服务器IP");
 			System.out.println("客户端退出");
+			disConnected();
 			System.exit(0);
-		} catch (IOException e) {
+		} catch (ConnectException e1) {
+			System.out.println("连接错误, 请检查服务器IP");
+			System.out.println("客户端退出");
+			disConnected();
+			System.exit(0);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public void disConnected() {
 		try {
-			out.close();
-			s.close();
+			if(out != null)
+				out.close();
+			if(s != null)
+				s.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
 	
 	private class jbSendListener implements ActionListener {
 		
@@ -158,7 +170,6 @@ public class ClientFrame extends JFrame{
 		}
 	}
 	
-	
 	private class Recive implements Runnable {
 		
 		private String str = null;
@@ -170,8 +181,8 @@ public class ClientFrame extends JFrame{
 				while(bConnected) {
 					str = buffRead.readLine();
 					if(str != null) {
-						System.out.println("str == " + str);
-						txtBack.append("\n" + str);
+//						System.out.println("str == " + str);
+						txtBack.append(str + "\n");
 					} else {
 						bConnected = false;
 					}
@@ -187,7 +198,6 @@ public class ClientFrame extends JFrame{
 			}
 		}
 	}
-	
 	
 	public static void main(String[] args) {
 		new ClientFrame();
