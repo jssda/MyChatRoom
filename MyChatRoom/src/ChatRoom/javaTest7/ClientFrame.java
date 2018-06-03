@@ -45,7 +45,6 @@ public class ClientFrame extends JFrame{
 		jpBack = new JPanel(new BorderLayout());
 		jpBack.setBackground(Color.BLUE);
 		
-		
 		//在线人员面板
 		jpOnLine = new JPanel(new BorderLayout());
 		jpOnLine.setBackground(Color.RED);
@@ -91,7 +90,6 @@ public class ClientFrame extends JFrame{
 		conClit.add(jpOnLine, BorderLayout.EAST);
 		conClit.add(jpTalk, BorderLayout.SOUTH);
 		pack();
-		
 		
 		//通过toolkit工具包, 取得屏幕中央位置, 将窗口显示在中央
 		int x = (int) ((tool.getScreenSize().getWidth() - 800) / 2);
