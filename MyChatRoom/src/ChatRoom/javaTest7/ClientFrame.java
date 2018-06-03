@@ -112,17 +112,19 @@ public class ClientFrame extends JFrame{
 		
 		
 		jbSend.addActionListener(new jbSendListener());
+		
+		LoginDialogBox.connectionDB();
 		this.setVisible(true);
 		
 		new LoginDialogBox(this);
 		
-		connected();
+//		connected();
 		new Thread(new Recive()).start();
 	}
 	
-	public void connected() {
+	public void connected(String url) {
 		try {
-			s = new Socket("127.0.0.1", 8888);
+			s = new Socket(url, 8888);
 			bConnected = true;
 			out = new PrintStream(s.getOutputStream()); 	//得到客户端输出流
 			buffRead = new BufferedReader(new InputStreamReader( 	//得到客户端输入流
@@ -159,7 +161,6 @@ public class ClientFrame extends JFrame{
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == jbSend) {
 				String str = txtAction.getText().trim();
-//				txtBack.setText(str);	
 				txtAction.setText("");
 				
 				out.println(str);
@@ -179,7 +180,6 @@ public class ClientFrame extends JFrame{
 				while(bConnected) {
 					str = buffRead.readLine();
 					if(str != null) {
-//						System.out.println("str == " + str);
 						txtBack.append(str + "\n");
 					} else {
 						bConnected = false;

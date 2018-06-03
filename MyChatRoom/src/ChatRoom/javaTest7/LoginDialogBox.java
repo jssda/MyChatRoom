@@ -16,9 +16,9 @@ public class LoginDialogBox {
 	public static final String DBUSER = "jssd";
 	public static final String DBPASS = "142536";
 
-	private JFrame parentPane = null;
+	private ClientFrame parentPane = null;
 	
-	private Connection conn = null; 		//数据库连接对象
+	public static Connection conn = null; 		//数据库连接对象
 	private PreparedStatement sta = null; 			//数据库操作对象
 	
 	private JPanel jpInput = null;		//输入面板
@@ -34,7 +34,7 @@ public class LoginDialogBox {
 	private JButton jbLogon = null;
 	private JButton jbExit = null;
 	
-	public LoginDialogBox(JFrame jFrame) {
+	public LoginDialogBox(ClientFrame jFrame) {
 		
 		this.parentPane = jFrame;
 		
@@ -48,7 +48,7 @@ public class LoginDialogBox {
 		jlUserPass = new JLabel("PASSWORD: ");
 		
 		txtSerIP = new JTextField("172.0.0.1", 12);
-//		txtSerIP.setSize(250, 100);
+
 		txtUserName = new JTextField(12);
 		txtUserPass = new JTextField(12);
 		
@@ -103,7 +103,7 @@ public class LoginDialogBox {
 	private JTextField jtPassWord = null;
 	private JTextField jtConfirm = null;
 	
-	//登陆模块
+	//注册模块
 	private void login() {
 		
 		Init.setVisible(false);
@@ -151,15 +151,31 @@ public class LoginDialogBox {
 		jdLogin.add(jbOK);
 		
 		Toolkit tool = Toolkit.getDefaultToolkit();
-		int x = (int) ((tool.getScreenSize().getWidth() - 400) / 2);
-		int y = (int) ((tool.getScreenSize().getHeight() - 800) / 2);
+		int x = (int) ((tool.getScreenSize().getWidth() - 280) / 2);
+		int y = (int) ((tool.getScreenSize().getHeight() - 410) / 2);
 		jdLogin.setLocation(x, y);
 
 		jdLogin.setVisible(true);
 		
 	}
 	
-	private void connectionDB() {
+	//登陆模块
+	private void logon(){
+		String name = txtUserName.getText();
+		if(name == null) {
+			JOptionPane.showMessageDialog(jdLogin, "请输入姓名", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		String pass = txtUserPass.getText();
+		if(pass == null) {
+			JOptionPane.showMessageDialog(jdLogin, "请输入密码", "Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		
+	}
+	
+	public static void connectionDB() {
 		try {
 			Class.forName(DBDRIVER);
 		} catch (ClassNotFoundException e1) {
@@ -185,8 +201,10 @@ public class LoginDialogBox {
 				login();
 			} else if(e.getSource() == jbLogon) {
 				System.out.println("登陆");
+				logon();
 			} else if(e.getSource() == jbExit) {
 				System.out.println("程序退出");
+				parentPane.disConnected();
 				System.exit(0);
 			} else if(e.getSource() == jbOK) {
 				clickOK();
@@ -195,13 +213,18 @@ public class LoginDialogBox {
 		
 		private void clickOK() {
 			//连接数据库
-			connectionDB();
+//			connectionDB();
 			
 			try {
 				String name = jtName.getText();
 				String nickName = jtNickName.getText();
 				String password = jtPassWord.getText();
 				String sex = jtSex.getText();
+				if( !("男".equals(sex) || "女".equals(sex))) {
+					JOptionPane.showMessageDialog(jdLogin, "性别格式不对, \"男\"或\"女\"", "Error", JOptionPane.ERROR_MESSAGE);
+					jtSex.setText("");
+					return;
+				}
 				int age = 0;
 			
 				try {
@@ -239,15 +262,18 @@ public class LoginDialogBox {
 					JOptionPane.showMessageDialog(jdLogin, "Please input the sex!", 
 							"Error", JOptionPane.ERROR_MESSAGE);
 				} else {
-					String sql = "INSERT (name, nickName, sex, age, email, passWord) values + (?, ?, ?, ? , ? , ?)" ;
+					String sql = "INSERT INTO person(name, nickName, sex, age, email, passWord) values (?, ?, ?, ? , ? , ?);" ;
 					sta = conn.prepareStatement(sql);
-					sta.execute();
-//					sta.setString(1, name);
-//					sta.setString(2, nickName);
-//					sta.setString(3, sex);
-//					sta.setInt(4, age);
-//					sta.setString(5, email);
-//					sta.setString(6, passWord);
+					sta.setString(1, name);
+					sta.setString(2, nickName);
+					sta.setString(3, sex);
+					sta.setInt(4, age);
+					sta.setString(5, email);
+					sta.setString(6, passWord);
+					sta.executeUpdate();
+					
+					jdLogin.setVisible(false);
+					Init.setVisible(true);
 				}
 			} catch (SQLException e2) {
 				e2.printStackTrace();
